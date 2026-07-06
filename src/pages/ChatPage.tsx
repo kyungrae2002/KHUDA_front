@@ -66,6 +66,7 @@ export const ChatPage: React.FC = () => {
   const [showDaysInput, setShowDaysInput] = useState(false);
   const [autoComputedDays, setAutoComputedDays] = useState<number | null>(null);
   const openingInjected = useRef(false);
+  const itineraryRequestId = useRef(0);
 
   // ── Initial slot extraction + dynamic opening message on mount ───────────
   useEffect(() => {
@@ -264,11 +265,13 @@ export const ChatPage: React.FC = () => {
 
       if (parsedDays !== null) {
         // Auto-proceed to itinerary generation using an IIFE
+        const myRequestId = ++itineraryRequestId.current;
         (async () => {
           setGeneratingItinerary(true);
           setItineraryError(false);
           try {
             const resItin = await createItinerary(res.session_id, parsedDays);
+            if (itineraryRequestId.current !== myRequestId) return; // superseded by an override
             setItinerary({
               narrative: resItin.narrative.days,
               iterationsUsed: resItin.iterations_used,
@@ -276,11 +279,14 @@ export const ChatPage: React.FC = () => {
             });
             navigate('/plan');
           } catch (err) {
+            if (itineraryRequestId.current !== myRequestId) return; // superseded by an override
             console.error('createItinerary failed:', err);
             setItineraryError(true);
             setShowDaysInput(true); // Ensure DaysInput is visible to show error
           } finally {
-            setGeneratingItinerary(false);
+            if (itineraryRequestId.current === myRequestId) {
+              setGeneratingItinerary(false);
+            }
           }
         })();
       }
@@ -305,10 +311,12 @@ export const ChatPage: React.FC = () => {
   // ── Itinerary generation ───────────────────────────────────────────────────
   const handleConfirmDays = useCallback(async (days: number) => {
     if (!sessionId) { alert('세션 정보가 없습니다.'); return; }
+    const myRequestId = ++itineraryRequestId.current;
     setGeneratingItinerary(true);
     setItineraryError(false);
     try {
       const res = await createItinerary(sessionId, days);
+      if (itineraryRequestId.current !== myRequestId) return; // superseded by a newer request
       setItinerary({
         narrative: res.narrative.days,
         iterationsUsed: res.iterations_used,
@@ -316,13 +324,23 @@ export const ChatPage: React.FC = () => {
       });
       navigate('/plan');
     } catch (err) {
+      if (itineraryRequestId.current !== myRequestId) return; // superseded by a newer request
       console.error('createItinerary failed:', err);
       setItineraryError(true);
       setShowDaysInput(true);
     } finally {
-      setGeneratingItinerary(false);
+      if (itineraryRequestId.current === myRequestId) {
+        setGeneratingItinerary(false);
+      }
     }
   }, [sessionId, setGeneratingItinerary, setItinerary, navigate]);
+
+  // ── Let the user override an in-flight auto-computed generation ────────────
+  const handleOverrideDays = useCallback(() => {
+    itineraryRequestId.current += 1; // invalidate the in-flight auto-generation, if any
+    setGeneratingItinerary(false);
+    setItineraryError(false);
+  }, [setGeneratingItinerary]);
 
   // ── Loading overlay label ──────────────────────────────────────────────────
   const isFinalizingStage = isBuildingFinalJson || isUploadingFinalJson;
@@ -379,6 +397,7 @@ export const ChatPage: React.FC = () => {
           {showDaysInput && (
             <DaysInput
               onConfirm={handleConfirmDays}
+              onOverride={handleOverrideDays}
               isLoading={isGeneratingItinerary}
               hasError={itineraryError}
               autoDays={autoComputedDays}

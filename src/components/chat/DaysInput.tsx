@@ -4,17 +4,23 @@ import LoadingSpinner from '../common/LoadingSpinner';
 
 interface DaysInputProps {
   onConfirm: (days: number) => void;
+  onOverride?: () => void;
   isLoading: boolean;
   hasError?: boolean;
   autoDays?: number | null;
 }
 
-export const DaysInput: React.FC<DaysInputProps> = ({ onConfirm, isLoading, hasError, autoDays }) => {
+export const DaysInput: React.FC<DaysInputProps> = ({ onConfirm, onOverride, isLoading, hasError, autoDays }) => {
   const [days, setDays] = useState(autoDays || 3);
   const [showOverride, setShowOverride] = useState(false);
 
   const decrement = () => setDays((d) => Math.max(1, d - 1));
   const increment = () => setDays((d) => Math.min(14, d + 1));
+
+  const handleOverrideClick = () => {
+    onOverride?.();
+    setShowOverride(true);
+  };
 
   if (autoDays && isLoading && !showOverride) {
     return (
@@ -25,6 +31,12 @@ export const DaysInput: React.FC<DaysInputProps> = ({ onConfirm, isLoading, hasE
             <div className="text-[10px] mt-1.5 text-slate-400 font-normal">장소를 꼼꼼히 찾고 있어요, 최대 1-2분 정도 걸릴 수 있어요</div>
           </div>
         } />
+        <button
+          onClick={handleOverrideClick}
+          className="mt-3 text-[11px] text-slate-400 underline hover:text-slate-600"
+        >
+          직접 일수 선택하기
+        </button>
       </div>
     );
   }

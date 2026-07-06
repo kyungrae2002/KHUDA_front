@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-white text-slate-900 font-sans antialiased selection:bg-teal-500/20 selection:text-teal-900 overflow-x-hidden;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-200 rounded-full hover:bg-slate-300 transition-colors;
+}
+
+/* Sky-and-cloud gradient-mesh background — pure blue family only */
+.bg-mesh-gradient {
+  background-color: #f0f9ff;
+  background-image:
+    radial-gradient(ellipse at 15% 20%, rgba(186, 230, 253, 0.70) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 10%, rgba(125, 211, 252, 0.55) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 85%, rgba(14, 165, 233, 0.18) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 80%, rgba(186, 230, 253, 0.40) 0%, transparent 45%);
+  background-size: 100% 100%;
+}
+
+/* Outline Pill Button Style */
+.btn-pill-outline {
+  @apply rounded-full border border-slate-900 px-6 py-2.5 text-sm font-semibold text-slate-900 bg-white hover:bg-slate-900 hover:text-white transition-all duration-300 inline-flex items-center justify-center space-x-2 cursor-pointer;
+}
+
+/* Clean minimal layout helpers */
+.minimal-card {
+  @apply bg-white border border-slate-200/80 rounded-2xl;
+}
+
+/* Page fade transition */
+.fade-transition {
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+}
+
+/* Animations */
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUpFade 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Scroll line animation */
+@keyframes scrollLine {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+
+  50% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+
+  50.1% {
+    transform: scaleY(1);
+    transform-origin: bottom;
+  }
+
+  100% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+}
+
+.animate-scroll-line {
+  animation: scrollLine 2.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}

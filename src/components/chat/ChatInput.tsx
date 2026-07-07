@@ -21,6 +21,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
     }
   };
 
+
   return (
     <div className="w-full flex items-center space-x-2 bg-white border border-slate-200 rounded-full px-2 py-1 focus-within:border-slate-400 transition-colors">
       <input
@@ -29,7 +30,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
         disabled={disabled}
-        placeholder={disabled ? 'AI가 답변 중입니다...' : '메시지를 입력하세요...'}
+        placeholder={disabled ? 'AI가 답변 중입니다..' : '메시지를 입력하세요...'}
         className="flex-1 bg-transparent text-sm text-slate-800 placeholder-slate-400 outline-none border-0 focus:ring-0 px-3 py-2 disabled:opacity-40"
       />
       <button
